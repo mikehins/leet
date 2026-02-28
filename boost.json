@@ -1,0 +1,21 @@
+{
+    "agents": [
+        "junie",
+        "cursor",
+        "gemini"
+    ],
+    "guidelines": true,
+    "herd_mcp": false,
+    "mcp": true,
+    "nightwatch_mcp": false,
+    "packages": [
+        "laravel/ai"
+    ],
+    "sail": false,
+    "skills": [
+        "pest-testing",
+        "inertia-react-development",
+        "tailwindcss-development",
+        "developing-with-ai-sdk"
+    ]
+}
