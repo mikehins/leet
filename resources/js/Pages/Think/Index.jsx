@@ -205,9 +205,9 @@ export default function ThinkIndex({ game, progress }) {
         <AuthenticatedLayout
             header={
                 <div className="flex flex-wrap items-center justify-between gap-4">
-                    <h1 className="text-2xl font-bold tracking-tight text-slate-800">{t('think.title')}</h1>
+                    <h1 className="text-2xl font-bold tracking-tight text-stone-800">{t('think.title')}</h1>
                     <div className="flex items-center gap-2">
-                        <span className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700">
+                        <span className="rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-sm font-medium text-stone-700">
                             {displayXp} XP
                         </span>
                         {chatXpEarned > 0 && (
@@ -215,7 +215,7 @@ export default function ThinkIndex({ game, progress }) {
                                 +{chatXpEarned} XP
                             </span>
                         )}
-                        <span className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700">
+                        <span className="rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-sm font-medium text-stone-700">
                             {t('dashboard.level')} {progress.level}
                         </span>
                     </div>
@@ -224,12 +224,12 @@ export default function ThinkIndex({ game, progress }) {
         >
             <Head title={t('think.title')} />
 
-            <div className="min-h-[80vh] bg-slate-50/50 py-6">
+            <div className="min-h-[80vh] bg-cream100/80 py-12">
                 <div className="mx-auto max-w-5xl px-4">
                     {!problem && !generating && (
-                        <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm">
+                        <div className="rounded-2xl border border-stone-200 bg-white p-10 text-center shadow-sm">
                             {generateError && (
-                                <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                                <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
                                     {generateError}
                                     <button
                                         type="button"
@@ -240,16 +240,16 @@ export default function ThinkIndex({ game, progress }) {
                                     </button>
                                 </div>
                             )}
-                            <p className="mb-6 text-slate-600">{t('think.subtitle')}</p>
+                            <p className="mb-6 text-stone-600">{t('think.subtitle')}</p>
                             <div className="mb-6">
-                                <label htmlFor="grade" className="mb-2 block text-center text-sm font-medium text-slate-600">
+                                <label htmlFor="grade" className="mb-2 block text-center text-sm font-medium text-stone-600">
                                     {t('think.grade_label')}
                                 </label>
                                 <select
                                     id="grade"
                                     value={grade}
                                     onChange={(e) => setGrade(e.target.value)}
-                                    className="mx-auto block rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-center text-sm font-medium text-slate-800 focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                                    className="mx-auto block rounded-lg border border-stone-300 bg-white px-4 py-2.5 text-center text-sm font-medium text-stone-800 focus:border-stone-500 focus:ring-2 focus:ring-warm"
                                 >
                                     {['grade_3', 'grade_4', 'grade_5', 'grade_6'].map((g) => (
                                         <option key={g} value={g}>
@@ -261,7 +261,7 @@ export default function ThinkIndex({ game, progress }) {
                             <button
                                 type="button"
                                 onClick={generateProblem}
-                                className="rounded-xl bg-slate-800 px-8 py-4 text-lg font-semibold text-white shadow-sm transition hover:bg-slate-700"
+                                className="rounded-lg bg-coral px-8 py-4 text-base font-medium text-white transition hover:bg-coral-hover"
                             >
                                 {t('think.get_problem')}
                             </button>
@@ -269,14 +269,14 @@ export default function ThinkIndex({ game, progress }) {
                     )}
 
                     {generating && (
-                        <div className="rounded-2xl border border-slate-200 bg-white p-16 text-center shadow-sm">
-                            <Loader2 className="mx-auto h-16 w-16 animate-spin text-slate-400" strokeWidth={1.5} />
-                            <p className="mt-6 text-lg font-medium text-slate-700">{t('think.generating')}</p>
-                            <p className="mt-1 text-sm text-slate-500">{t('think.generating_hint')}</p>
+                        <div className="rounded-2xl border border-stone-200 bg-white p-16 text-center shadow-sm">
+                            <Loader2 className="mx-auto h-16 w-16 animate-spin text-stone-400" strokeWidth={1.5} />
+                            <p className="mt-6 text-lg font-medium text-stone-700">{t('think.generating')}</p>
+                            <p className="mt-1 text-sm text-stone-500">{t('think.generating_hint')}</p>
                             <div className="mx-auto mt-6 flex max-w-xs gap-1">
-                                <span className="h-2 w-2 animate-bounce rounded-full bg-slate-400 [animation-delay:0ms]" />
-                                <span className="h-2 w-2 animate-bounce rounded-full bg-slate-400 [animation-delay:150ms]" />
-                                <span className="h-2 w-2 animate-bounce rounded-full bg-slate-400 [animation-delay:300ms]" />
+                                <span className="h-2 w-2 animate-bounce rounded-full bg-stone-400 [animation-delay:0ms]" />
+                                <span className="h-2 w-2 animate-bounce rounded-full bg-amber-400 [animation-delay:150ms]" />
+                                <span className="h-2 w-2 animate-bounce rounded-full bg-violet-400 [animation-delay:300ms]" />
                             </div>
                         </div>
                     )}
@@ -285,31 +285,31 @@ export default function ThinkIndex({ game, progress }) {
                         <div className="grid gap-6 lg:grid-cols-2">
                             {/* Left: Problem + Canvas + Answer */}
                             <div className="space-y-4">
-                                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                                <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
                                     <div className="flex items-start justify-between gap-4">
                                         <div>
-                                            <p className="text-lg font-medium text-slate-800">{problem.question_text}</p>
-                                    <p className="mt-2 text-xs font-medium uppercase tracking-wider text-slate-400">
+                                            <p className="text-lg font-medium text-stone-800">{problem.question_text}</p>
+                                    <p className="mt-2 text-xs font-medium uppercase tracking-wider text-stone-400">
                                         {problem.grade ? t(`grade.${problem.grade}`) : t(`difficulty.${problem.difficulty}`)}
                                     </p>
                                         </div>
                                         <button
                                             type="button"
                                             onClick={generateProblem}
-                                            className="shrink-0 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50"
+                                            className="shrink-0 rounded-lg border border-stone-200 px-3 py-1.5 text-sm font-medium text-stone-600 hover:bg-warm/50"
                                         >
                                             {t('think.get_problem')}
                                         </button>
                                     </div>
                                 </div>
 
-                                <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                                    <p className="mb-2 text-sm font-semibold text-slate-700">{t('think.thinking_canvas')}</p>
+                                <div className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
+                                    <p className="mb-2 text-sm font-semibold text-stone-700">{t('think.thinking_canvas')}</p>
                                     <ThinkingCanvas />
                                 </div>
 
-                                <form onSubmit={handleSubmit} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                                    <label htmlFor="answer" className="mb-2 block text-sm font-medium text-slate-700">
+                                <form onSubmit={handleSubmit} className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
+                                    <label htmlFor="answer" className="mb-2 block text-sm font-medium text-stone-700">
                                         {t('think.your_answer')}
                                     </label>
                                     <div className="flex gap-2">
@@ -321,13 +321,13 @@ export default function ThinkIndex({ game, progress }) {
                                             value={answer}
                                             onChange={(e) => setAnswer(e.target.value)}
                                             placeholder="?"
-                                            className="flex-1 rounded-xl border border-slate-300 px-4 py-3 text-lg font-semibold focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                                            className="flex-1 rounded-lg border border-stone-300 px-4 py-3 text-lg font-semibold focus:border-stone-500 focus:ring-2 focus:ring-warm"
                                             disabled={loading}
                                         />
                                         <button
                                             type="submit"
                                             disabled={loading || !answer.trim()}
-                                            className="rounded-xl bg-slate-800 px-6 py-3 font-semibold text-white transition hover:bg-slate-700 disabled:opacity-50"
+                                            className="rounded-lg bg-coral px-6 py-3 text-sm font-medium text-white transition hover:bg-coral-hover disabled:opacity-50"
                                         >
                                             {loading ? t('play.checking') : t('think.check')}
                                         </button>
@@ -336,36 +336,36 @@ export default function ThinkIndex({ game, progress }) {
                             </div>
 
                             {/* Right: Chat with AI */}
-                            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-                                <div className="border-b border-slate-100 bg-slate-800 px-4 py-3">
+                            <div className="rounded-2xl border border-stone-200 bg-white shadow-sm">
+                                <div className="border-b border-coral/30 bg-coral px-4 py-3">
                                     <p className="font-semibold text-white">{t('think.ask_teacher')}</p>
                                     <p className="text-sm text-white/80">{t('think.ask_teacher_hint')}</p>
                                 </div>
                                 <div className="flex h-[420px] flex-col">
                                     <div className="flex-1 overflow-y-auto p-4 space-y-3">
                                         {messages.length === 0 && (
-                                            <p className="text-sm text-slate-500">{t('think.chat_empty')}</p>
+                                            <p className="text-sm text-stone-500">{t('think.chat_empty')}</p>
                                         )}
                                         {messages.map((m, i) => (
                                             <div
                                                 key={i}
-                                                className={`rounded-xl px-4 py-2 ${
+                                                className={`rounded-lg px-4 py-2 ${
                                                     m.role === 'user'
-                                                        ? 'ml-8 bg-slate-100 text-slate-800'
-                                                        : 'mr-8 bg-slate-800 text-white'
+                                                        ? 'ml-8 bg-warm text-stone-800'
+                                                        : 'mr-8 bg-coral text-white'
                                                 }`}
                                             >
                                                 <p className="text-sm">{m.content}</p>
                                             </div>
                                         ))}
                                         {chatLoading && (
-                                            <div className="mr-8 rounded-xl bg-slate-800 px-4 py-2">
+                                            <div className="mr-8 rounded-lg bg-coral px-4 py-2">
                                                 <span className="text-sm text-white">...</span>
                                             </div>
                                         )}
                                         <div ref={chatEndRef} />
                                     </div>
-                                    <div className="border-t border-slate-100 p-3">
+                                    <div className="border-t border-stone-100 p-3">
                                         <div className="flex gap-2">
                                             <input
                                                 type="text"
@@ -373,7 +373,7 @@ export default function ThinkIndex({ game, progress }) {
                                                 onChange={(e) => setChatInput(e.target.value)}
                                                 onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), sendChat(chatInput))}
                                                 placeholder={t('think.ask_placeholder')}
-                                                className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                                                className="flex-1 rounded-lg border border-stone-200 px-4 py-2.5 text-sm focus:border-stone-500 focus:ring-2 focus:ring-warm"
                                                 disabled={chatLoading}
                                             />
                                             <button
@@ -381,10 +381,10 @@ export default function ThinkIndex({ game, progress }) {
                                                 onClick={startListening}
                                                 disabled={chatLoading || listening}
                                                 title={t('think.voice_input')}
-                                                className={`rounded-xl px-3 py-2.5 transition ${
+                                                className={`rounded-lg px-3 py-2.5 transition ${
                                                     listening
                                                         ? 'bg-red-100 text-red-700'
-                                                        : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
+                                                        : 'border border-stone-200 text-stone-600 hover:bg-warm/50'
                                                 }`}
                                             >
                                                 <Mic className="h-5 w-5" strokeWidth={2} />
@@ -393,14 +393,14 @@ export default function ThinkIndex({ game, progress }) {
                                                 type="button"
                                                 onClick={() => sendChat(chatInput)}
                                                 disabled={chatLoading || !chatInput.trim()}
-                                                className="flex items-center gap-2 rounded-xl bg-slate-800 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:opacity-50"
+                                                className="flex items-center gap-2 rounded-lg bg-coral px-4 py-2.5 text-sm font-medium text-white transition hover:bg-coral-hover disabled:opacity-50"
                                             >
                                                 <Send className="h-4 w-4" strokeWidth={2} />
                                                 {t('think.send')}
                                             </button>
                                         </div>
                                         {speaking && (
-                                            <p className="mt-2 text-xs text-slate-500">{t('think.speaking')}</p>
+                                            <p className="mt-2 text-xs text-stone-500">{t('think.speaking')}</p>
                                         )}
                                     </div>
                                 </div>
@@ -409,14 +409,14 @@ export default function ThinkIndex({ game, progress }) {
                     )}
 
                     {problem && feedback && (
-                        <div className="mx-auto max-w-xl rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm">
+                        <div className="mx-auto max-w-xl rounded-2xl border border-stone-200 bg-white p-10 text-center shadow-sm">
                             {feedback.correct ? (
                                 <>
                                     <div className="mb-4 flex justify-center">
                                         <Check className="h-16 w-16 text-emerald-600" strokeWidth={2} />
                                     </div>
                                     <h2 className="mb-2 text-2xl font-bold text-emerald-600">{t('play.correct')}</h2>
-                                    <p className="mb-4 text-slate-600">
+                                    <p className="mb-4 text-stone-600">
                                         +{feedback.points_earned} XP • {t('think.total')} {feedback.new_total_points} XP
                                     </p>
                                 </>
@@ -426,7 +426,7 @@ export default function ThinkIndex({ game, progress }) {
                                         <X className="h-16 w-16 text-amber-500" strokeWidth={2} />
                                     </div>
                                     <h2 className="mb-2 text-2xl font-bold text-amber-600">{t('play.almost')}</h2>
-                                    <p className="mb-2 text-slate-600">
+                                    <p className="mb-2 text-stone-600">
                                         {t('play.answer_was')} <strong>{feedback.correct_answer}</strong>
                                     </p>
                                 </>
@@ -434,7 +434,7 @@ export default function ThinkIndex({ game, progress }) {
                             <button
                                 type="button"
                                 onClick={handleNext}
-                                className="mt-4 rounded-xl bg-slate-800 px-8 py-4 font-semibold text-white transition hover:bg-slate-700"
+                                className="mt-4 rounded-lg bg-coral px-8 py-4 text-sm font-medium text-white transition hover:bg-coral-hover"
                             >
                                 {t('think.next_problem')}
                             </button>

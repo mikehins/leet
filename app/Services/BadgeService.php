@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\ProblemType;
 use App\Models\Badge;
+use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Support\Collection;
 
@@ -88,7 +89,19 @@ class BadgeService
             }
         }
 
+        foreach ($newlyAwarded as $badge) {
+            $this->notifyFriendsOfBadge($user, $badge);
+        }
+
         return $newlyAwarded;
+    }
+
+    private function notifyFriendsOfBadge(User $user, Badge $badge): void
+    {
+        $friendIds = $user->friendsList()->pluck('id');
+        foreach ($friendIds as $friendId) {
+            Notification::createFriendBadgeEarned($friendId, $user, $badge);
+        }
     }
 
     private function getChatCount(User $user): int

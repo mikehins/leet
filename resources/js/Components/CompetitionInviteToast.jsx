@@ -21,17 +21,17 @@ export default function CompetitionInviteToast() {
 
     return (
         <div className="fixed bottom-4 right-4 z-50 max-w-sm">
-            <div className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-lg">
+            <div className="flex items-start gap-3 rounded-lg border border-warm bg-white p-4 shadow-lg">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100">
                     <Trophy className="h-5 w-5 text-amber-600" strokeWidth={2} />
                 </div>
                 <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-slate-800">
+                    <p className="text-sm font-semibold text-stone-800">
                         {t('compete.invite_from', { name: invite.creatorName })}
                     </p>
                     <Link
                         href={joinUrl}
-                        className="mt-2 inline-block rounded-lg bg-slate-800 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700"
+                        className="mt-2 inline-block rounded-lg bg-coral px-4 py-2 text-sm font-medium text-white  transition hover:bg-coral-hover"
                     >
                         {t('compete.click_to_join')}
                     </Link>
@@ -39,7 +39,7 @@ export default function CompetitionInviteToast() {
                 <button
                     type="button"
                     onClick={() => setInvite(null)}
-                    className="shrink-0 rounded-lg p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+                    className="shrink-0 rounded-lg p-1 text-stone-400 transition hover:bg-warm hover:text-stone-600"
                     aria-label={t('profile.cancel')}
                 >
                     <X className="h-5 w-5" strokeWidth={2} />

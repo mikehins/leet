@@ -21,7 +21,15 @@ return [
         'ok' => 1,
     ],
 
+    'points_per_dollar' => 1000,
+
     'xp_per_correct' => 50,
+    'xp_per_level' => 500,
+    'daily_quest_problems' => 5,
+    'daily_quest_bonus_xp' => 50,
+    'login_bonus_xp' => 10,
+    'login_streak_bonus_xp' => 25,
+    'login_streak_days' => 7,
     'xp_per_chat_response' => 5,
     'xp_speed_bonus' => [
         'under_5_sec' => 25,
@@ -32,6 +40,12 @@ return [
         3 => 10,
         4 => 15,
         5 => 25,
+    ],
+
+    'reward_tiers_dollars' => [
+        5 => 5000,   // $5 = 5000 points
+        10 => 10000, // $10 = 10000 points
+        25 => 25000, // $25 = 25000 points
     ],
 
     'rewards' => [

@@ -9,14 +9,14 @@ export default function LocaleSwitcher() {
     };
 
     return (
-        <div className="ms-4 flex gap-1 rounded-lg border border-slate-200 bg-slate-50/80 p-1">
+        <div className="ms-4 flex gap-1 rounded-lg border border-warm bg-warm/50 p-1">
             <button
                 type="button"
                 onClick={() => switchLocale('en')}
                 className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
                     locale === 'en'
-                        ? 'bg-white text-slate-800 shadow-sm'
-                        : 'text-slate-600 hover:text-slate-800'
+                        ? 'bg-white text-stone-800 shadow-sm'
+                        : 'text-stone-600 hover:text-stone-800'
                 }`}
             >
                 EN
@@ -26,8 +26,8 @@ export default function LocaleSwitcher() {
                 onClick={() => switchLocale('fr')}
                 className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
                     locale === 'fr'
-                        ? 'bg-white text-slate-800 shadow-sm'
-                        : 'text-slate-600 hover:text-slate-800'
+                        ? 'bg-white text-stone-800 shadow-sm'
+                        : 'text-stone-600 hover:text-stone-800'
                 }`}
             >
                 FR

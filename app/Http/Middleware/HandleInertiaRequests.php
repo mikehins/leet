@@ -35,13 +35,28 @@ class HandleInertiaRequests extends Middleware
             ? (json_decode(file_get_contents($path), true) ?? [])
             : [];
 
+        $user = $request->user();
+        $parent = $user?->parent_id ? $user->parent : $user;
+        $canSwitchProfile = $parent && $parent->children()->count() > 0;
+        $actingAsChild = $user?->parent_id !== null;
+
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user,
+                'can_switch_profile' => $canSwitchProfile,
+                'acting_as_child' => $actingAsChild,
             ],
             'locale' => $locale,
             'translations' => $translations,
+            'flash' => [
+                'success' => $request->session()->get('success'),
+                'error' => $request->session()->get('error'),
+            ],
+            'unreadNotificationsCount' => $user?->unreadNotifications()->count() ?? 0,
+            'pendingFriendRequestsCount' => $user
+                ? \App\Models\FriendRequest::where('receiver_id', $user->id)->where('status', 'pending')->count()
+                : 0,
         ];
     }
 }

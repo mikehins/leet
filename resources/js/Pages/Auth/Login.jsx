@@ -1,14 +1,16 @@
 import Checkbox from '@/Components/Checkbox';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
+import OAuthButtons from '@/Components/OAuthButtons';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { useTranslations } from '@/hooks/useTranslations';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 
 export default function Login({ status, canResetPassword }) {
     const t = useTranslations();
+    const { flash } = usePage().props;
     const { data, setData, post, processing, errors, reset } = useForm({
         email: '',
         password: '',
@@ -30,6 +32,12 @@ export default function Login({ status, canResetPassword }) {
             {status && (
                 <div className="mb-4 text-sm font-medium text-green-600">
                     {status}
+                </div>
+            )}
+
+            {flash?.error && (
+                <div className="mb-4 text-sm font-medium text-red-600">
+                    {flash.error}
                 </div>
             )}
 
@@ -97,6 +105,17 @@ export default function Login({ status, canResetPassword }) {
                     </PrimaryButton>
                 </div>
             </form>
+
+            <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-stone-200" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                    <span className="bg-white px-2 text-stone-500">or</span>
+                </div>
+            </div>
+
+            <OAuthButtons />
         </GuestLayout>
     );
 }

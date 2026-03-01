@@ -11,8 +11,8 @@ export default function ResponsiveNavLink({
             {...props}
             className={`flex w-full items-start rounded-lg px-4 py-3 ${
                 active
-                    ? 'bg-slate-100 text-slate-900'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                    ? 'border border-coral/40 bg-coral-light text-coral'
+                    : 'text-stone-600 hover:bg-warm hover:text-stone-900'
             } text-base font-medium transition duration-150 ease-in-out focus:outline-none ${className}`}
         >
             {children}

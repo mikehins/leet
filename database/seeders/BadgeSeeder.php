@@ -43,6 +43,7 @@ class BadgeSeeder extends Seeder
             ['slug' => 'xp_1000', 'name_key' => 'badge.xp_1000', 'description_key' => 'badge.xp_1000_desc', 'icon' => 'Medal', 'criteria_type' => 'total_xp', 'criteria_value' => ['xp' => 1000], 'sort_order' => 31],
             ['slug' => 'xp_5000', 'name_key' => 'badge.xp_5000', 'description_key' => 'badge.xp_5000_desc', 'icon' => 'Award', 'criteria_type' => 'total_xp', 'criteria_value' => ['xp' => 5000], 'sort_order' => 32],
             ['slug' => 'speed_10', 'name_key' => 'badge.speed_10', 'description_key' => 'badge.speed_10_desc', 'icon' => 'Bolt', 'criteria_type' => 'speed', 'criteria_value' => ['seconds' => 10], 'sort_order' => 33],
+            ['slug' => 'report_card_star', 'name_key' => 'badge.report_card_star', 'description_key' => 'badge.report_card_star_desc', 'icon' => 'Award', 'criteria_type' => 'report_suggestions_completed', 'criteria_value' => [], 'sort_order' => 34],
         ];
 
         foreach ($badges as $badge) {

@@ -15,6 +15,8 @@ class CompetitiveGame extends Model
     protected $fillable = [
         'code',
         'status',
+        'mode',
+        'time_limit_seconds',
         'difficulty',
         'total_rounds',
         'current_round',

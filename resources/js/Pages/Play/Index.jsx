@@ -1,9 +1,12 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import CelebrationOverlay from '@/Components/CelebrationOverlay';
+import XpPopup from '@/Components/XpPopup';
+import BadgeUnlockToast from '@/Components/BadgeUnlockToast';
+import LevelUpOverlay from '@/Components/LevelUpOverlay';
 import ThinkingCanvas from '@/Components/ThinkingCanvas';
 import { useTranslations } from '@/hooks/useTranslations';
 import { Head, router } from '@inertiajs/react';
-import { Check, X, Star } from 'lucide-react';
+import { Check, X, Star, Sparkles } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 
@@ -26,6 +29,10 @@ export default function PlayIndex({ game, problem, progress, grade: initialGrade
     ];
     const [celebrationAnimation, setCelebrationAnimation] = useState(null);
     const [displayXp, setDisplayXp] = useState(progress.xp ?? progress.total_points ?? 0);
+    const [xpPopup, setXpPopup] = useState(null);
+    const [newBadges, setNewBadges] = useState([]);
+    const [levelUp, setLevelUp] = useState(null);
+    const currentCombo = progress.current_combo ?? 0;
 
     useEffect(() => {
         inputRef.current?.focus();
@@ -52,9 +59,15 @@ export default function PlayIndex({ game, problem, progress, grade: initialGrade
             .then(({ data }) => {
                 setFeedback(data);
                 if (data.new_total_points != null) setDisplayXp(data.new_total_points);
-                if (data.correct && correctAnimations.length > 0) {
-                    const chosen = correctAnimations[Math.floor(Math.random() * correctAnimations.length)];
-                    setCelebrationAnimation(chosen);
+                if (data.correct) {
+                    const totalEarned = (data.points_earned ?? 0) + (data.daily_quest_bonus ?? 0);
+                    setXpPopup(totalEarned);
+                    if (data.new_badges?.length > 0) setNewBadges(data.new_badges);
+                    if (data.level_up) setLevelUp(data.new_level);
+                    if (correctAnimations.length > 0) {
+                        const chosen = correctAnimations[Math.floor(Math.random() * correctAnimations.length)];
+                        setCelebrationAnimation(chosen);
+                    }
                 }
             })
             .catch(() => setFeedback({ correct: false, correct_answer: '?' }))
@@ -67,6 +80,9 @@ export default function PlayIndex({ game, problem, progress, grade: initialGrade
         setHint(null);
         setExplanation(null);
         setCelebrationAnimation(null);
+        setXpPopup(null);
+        setNewBadges([]);
+        setLevelUp(null);
         setTimeSpent(0);
         startTime.current = Date.now();
         router.reload({ preserveState: false });
@@ -112,30 +128,41 @@ export default function PlayIndex({ game, problem, progress, grade: initialGrade
         <AuthenticatedLayout
             header={
                 <div className="flex flex-wrap items-center justify-between gap-4">
-                    <h1 className="text-2xl font-extrabold tracking-tight text-slate-800">
+                    <h1 className="text-lg font-semibold text-stone-700 sm:text-xl">
                         {t('game.name')}
                     </h1>
-                    <div className="flex flex-wrap items-center gap-2">
-                        <select
-                            value={initialGrade}
-                            onChange={(e) => router.visit(route(route().current(), { grade: e.target.value }))}
-                            className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 focus:border-slate-500 focus:ring-1 focus:ring-slate-200"
-                        >
-                            {['grade_3', 'grade_4', 'grade_5', 'grade_6'].map((g) => (
-                                <option key={g} value={g}>
-                                    {t(`grade.${g}`)}
-                                </option>
-                            ))}
-                        </select>
-                        <span className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700">
-                            {displayXp} XP
-                        </span>
-                        <span className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700">
-                            {t('dashboard.level')} {progress.level}
-                        </span>
-                        <span className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700">
-                            {progress.current_streak} {t('play.day_streak')}
-                        </span>
+                    <div className="flex flex-1 flex-col gap-2 sm:ml-4 sm:flex-row sm:items-center sm:justify-end">
+                        <div className="min-w-0 flex-1 sm:max-w-[200px]">
+                            <div className="flex items-center justify-between gap-2 text-xs font-medium text-stone-600">
+                                <span>{t('dashboard.level')} {progress.level}</span>
+                                <span>{progress.xp_in_level ?? 0}/{progress.xp_for_next_level ?? 500} XP</span>
+                            </div>
+                            <div className="mt-1 h-2 overflow-hidden rounded-full border border-warm bg-warm">
+                                <div
+                                    className="h-full rounded-full bg-coral transition-all duration-500"
+                                    style={{ width: `${progress.progress_pct ?? 0}%` }}
+                                />
+                            </div>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2">
+                            <select
+                                value={initialGrade}
+                                onChange={(e) => router.visit(route(route().current(), { grade: e.target.value }))}
+                                className="rounded-lg border border-warm bg-white px-3 py-1.5 text-sm font-medium text-stone-700 focus:border-stone-500 focus:ring-1 focus:ring-warm"
+                            >
+                                {['grade_3', 'grade_4', 'grade_5', 'grade_6'].map((g) => (
+                                    <option key={g} value={g}>
+                                        {t(`grade.${g}`)}
+                                    </option>
+                                ))}
+                            </select>
+                            <span className="inline-flex items-center rounded-lg border border-warm bg-white px-3 py-1.5 text-sm font-medium text-stone-700">
+                                {displayXp} XP
+                            </span>
+                            <span className="inline-flex items-center rounded-lg border border-warm bg-white px-3 py-1.5 text-sm font-medium text-stone-700">
+                                {progress.current_streak} {t('play.day_streak')}
+                            </span>
+                        </div>
                     </div>
                 </div>
             }
@@ -150,31 +177,56 @@ export default function PlayIndex({ game, problem, progress, grade: initialGrade
                 />
             )}
 
-            <div className="min-h-[60vh] bg-slate-50/50 py-8">
-                <div className="mx-auto max-w-xl px-4">
+            {xpPopup && feedback?.correct && (
+                <XpPopup points={xpPopup} onComplete={() => setXpPopup(null)} />
+            )}
+
+            {newBadges.length > 0 && (
+                <BadgeUnlockToast badges={newBadges} onDismiss={() => setNewBadges([])} />
+            )}
+
+            {levelUp && (
+                <LevelUpOverlay level={levelUp} onComplete={() => setLevelUp(null)} />
+            )}
+
+            <div className="min-h-[60vh]">
+                <div className="mx-auto max-w-xl">
                     {!feedback ? (
-                        <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
-                            {/* Card header */}
-                            <div className="border-b border-slate-100 bg-slate-800 px-8 py-5">
-                                <div className="flex items-center justify-between">
-                                    <span className={`rounded-lg px-2.5 py-1 text-xs font-medium ${difficultyColor}`}>
+                        <div className="overflow-hidden rounded-xl border border-warm/60 bg-white shadow-sm">
+                            {/* Subtle metadata bar */}
+                            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-warm/40 bg-stone-50/80 px-4 py-2.5 sm:px-6">
+                                <div className="flex items-center gap-2">
+                                    <span className={`rounded-md px-2 py-0.5 text-xs font-medium ${difficultyColor}`}>
                                         {t(`grade.${initialGrade}`)}
                                     </span>
-                                    <span className="text-sm font-medium text-white/90">{topicLabel}</span>
+                                    <span className="text-sm text-stone-600">{topicLabel}</span>
                                 </div>
-                                <p className="mt-2 text-sm font-medium text-white/80">
-                                    {t('play.solve_equation')}
-                                </p>
+                                {currentCombo >= 1 ? (
+                                    <div className="flex items-center gap-1.5 rounded-md bg-amber-50 px-2.5 py-1 text-amber-800">
+                                        <Sparkles className="h-3.5 w-3.5" strokeWidth={2} />
+                                        <span className="text-xs font-semibold sm:text-sm">
+                                            {t('play.combo_keep_going', { count: currentCombo })}
+                                        </span>
+                                    </div>
+                                ) : (progress.progress_pct >= 80 && progress.progress_pct < 100) ? (
+                                    <p className="text-xs font-medium text-amber-700 sm:text-sm">
+                                        {t('quest.almost_there')} — {(progress.xp_for_next_level ?? 500) - (progress.xp_in_level ?? 0)} XP to level {progress.level + 1}!
+                                    </p>
+                                ) : (
+                                    <p className="text-xs text-stone-500 sm:text-sm">
+                                        {t('play.solve_equation')}
+                                    </p>
+                                )}
                             </div>
 
-                            {/* Problem area */}
-                            <div className="p-10">
-                                <div className="mb-6">
-                                    <p className="mb-2 text-sm font-semibold text-slate-600">
+                            {/* Problem area - canvas is the star */}
+                            <div className="p-4 sm:p-6 lg:p-8">
+                                <div className="mb-4 sm:mb-6">
+                                    <p className="mb-2 text-xs font-medium text-stone-500 sm:text-sm">
                                         {t('play.work_here')}
                                     </p>
                                     <ThinkingCanvas
-                                        className="rounded-xl border border-slate-200 bg-slate-50/50 p-3"
+                                        className="min-h-[120px] rounded-xl border border-warm/60 bg-stone-50/80 p-4 sm:min-h-[140px] sm:p-5"
                                         problemKey={problem.id}
                                         equation={
                                             problem.stacked
@@ -184,9 +236,9 @@ export default function PlayIndex({ game, problem, progress, grade: initialGrade
                                     />
                                 </div>
 
-                                <form onSubmit={handleSubmit} className="space-y-5">
+                                <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
                                     <div>
-                                        <label htmlFor="answer" className="mb-2 block text-sm font-semibold text-slate-600">
+                                        <label htmlFor="answer" className="mb-1.5 block text-sm font-medium text-stone-600">
                                             {t('play.your_answer')}
                                         </label>
                                         <input
@@ -198,27 +250,27 @@ export default function PlayIndex({ game, problem, progress, grade: initialGrade
                                             value={answer}
                                             onChange={(e) => setAnswer(e.target.value)}
                                             placeholder="?"
-                                            className="block w-full rounded-xl border border-slate-300 bg-white px-6 py-5 text-2xl font-semibold text-slate-800 placeholder:text-slate-400 focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                                            className="block w-full rounded-xl border border-warm bg-white px-4 py-4 text-xl font-semibold text-stone-800 placeholder:text-stone-400 focus:border-stone-500 focus:ring-2 focus:ring-warm sm:px-6 sm:py-5 sm:text-2xl"
                                             disabled={loading}
                                         />
                                     </div>
                                     <button
                                         type="submit"
                                         disabled={loading || !answer.trim()}
-                                        className="w-full rounded-xl bg-slate-800 px-8 py-4 text-lg font-semibold text-white shadow-sm transition hover:bg-slate-700 disabled:opacity-50"
+                                        className="min-h-[48px] w-full rounded-xl border border-coral bg-coral px-6 py-3.5 text-base font-medium text-white transition hover:bg-coral-hover disabled:opacity-50 sm:min-h-[52px] sm:py-4"
                                     >
                                         {loading ? t('play.checking') : t('play.check_answer')}
                                     </button>
                                 </form>
 
-                                <p className="mt-4 text-center text-sm font-medium text-slate-500">
+                                <p className="mt-3 text-center text-xs font-medium text-stone-500 sm:text-sm">
                                     {timeSpent}s
                                 </p>
                             </div>
                         </div>
                     ) : (
-                        <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
-                            <div className="p-10 text-center">
+                        <div className="overflow-hidden rounded-xl border border-warm/60 bg-white shadow-sm">
+                            <div className="p-4 text-center sm:p-6 lg:p-8">
                                 {feedback.correct ? (
                                     <>
                                         <div className="mb-4 flex justify-center">
@@ -231,6 +283,11 @@ export default function PlayIndex({ game, problem, progress, grade: initialGrade
                                             <span className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2 text-base font-semibold text-emerald-800">
                                                 +{feedback.points_earned} XP
                                             </span>
+                                            {feedback.daily_quest_bonus > 0 && (
+                                                <span className="rounded-lg border border-sage bg-sage-light px-3 py-1.5 text-sm font-medium text-sage">
+                                                    {t('quest.completed', { xp: feedback.daily_quest_bonus })}
+                                                </span>
+                                            )}
                                             {feedback.speed_bonus > 0 && (
                                                 <span className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-sm font-medium text-amber-800">
                                                     +{feedback.speed_bonus} speed
@@ -242,7 +299,7 @@ export default function PlayIndex({ game, problem, progress, grade: initialGrade
                                                 </span>
                                             )}
                                         </div>
-                                        <p className="mb-6 text-xl font-semibold text-slate-600">
+                                        <p className="mb-6 text-xl font-semibold text-stone-600">
                                             {t('play.xp_earned', { points: feedback.points_earned, total: feedback.new_total_points })}
                                         </p>
                                         <div className="mb-6 flex justify-center gap-1">
@@ -260,14 +317,14 @@ export default function PlayIndex({ game, problem, progress, grade: initialGrade
                                                 type="button"
                                                 onClick={handleExplain}
                                                 disabled={explanationLoading}
-                                                className="rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
+                                                className="rounded-lg border border-warm bg-white px-5 py-2.5 text-sm font-medium text-stone-700 transition hover:bg-warm disabled:opacity-50"
                                             >
                                                 {explanationLoading ? t('play.thinking') : t('play.how_does_it_work')}
                                             </button>
                                             {explanation && explanation.length > 0 && (
-                                                <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4 text-left">
-                                                    <p className="mb-2 font-medium text-slate-800">{t('play.heres_how')}</p>
-                                                    <ol className="list-inside list-decimal space-y-2 text-slate-700">
+                                                <div className="mt-4 rounded-lg border border-warm bg-warm/50 p-4 text-left">
+                                                    <p className="mb-2 font-medium text-stone-800">{t('play.heres_how')}</p>
+                                                    <ol className="list-inside list-decimal space-y-2 text-stone-700">
                                                         {explanation.map((step, i) => (
                                                             <li key={i}>{step}</li>
                                                         ))}
@@ -284,15 +341,15 @@ export default function PlayIndex({ game, problem, progress, grade: initialGrade
                                         <h2 className="mb-2 text-2xl font-bold text-amber-600">
                                             {t('play.almost')}
                                         </h2>
-                                        <p className="mb-2 text-xl text-slate-600">
-                                            {t('play.answer_was')} <strong className="text-slate-800">{feedback.correct_answer}</strong>
+                                        <p className="mb-2 text-xl text-stone-600">
+                                            {t('play.answer_was')} <strong className="text-stone-800">{feedback.correct_answer}</strong>
                                         </p>
-                                        <p className="mb-4 text-slate-500">
+                                        <p className="mb-4 text-stone-500">
                                             {t('play.no_worries')}
                                         </p>
                                         <div className="mb-4 flex justify-center gap-1">
                                             {[1, 2, 3].map((i) => (
-                                                <Star key={i} className="h-8 w-8 fill-slate-300 text-slate-300" strokeWidth={1.5} />
+                                                <Star key={i} className="h-8 w-8 fill-stone-300 text-stone-300" strokeWidth={1.5} />
                                             ))}
                                         </div>
                                         <div className="mb-6">
@@ -300,12 +357,12 @@ export default function PlayIndex({ game, problem, progress, grade: initialGrade
                                                 type="button"
                                                 onClick={handleGetHint}
                                                 disabled={hintLoading}
-                                                className="rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
+                                                className="rounded-lg border border-warm bg-white px-5 py-2.5 text-sm font-medium text-stone-700 transition hover:bg-warm disabled:opacity-50"
                                             >
                                                 {hintLoading ? t('play.thinking') : t('play.get_hint')}
                                             </button>
                                             {hint && (
-                                                <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4 text-left text-slate-700">
+                                                <div className="mt-4 rounded-lg border border-warm bg-warm/50 p-4 text-left text-stone-700">
                                                     <p className="font-medium text-amber-900">{t('play.hint')}</p>
                                                     <p className="mt-1">{hint}</p>
                                                 </div>
@@ -315,7 +372,7 @@ export default function PlayIndex({ game, problem, progress, grade: initialGrade
                                 )}
                                 <button
                                     onClick={handleNext}
-                                    className="w-full rounded-xl bg-slate-800 px-8 py-4 text-lg font-semibold text-white shadow-sm transition hover:bg-slate-700"
+                                    className="min-h-[48px] w-full rounded-xl border border-coral bg-coral px-6 py-3.5 text-base font-medium text-white transition hover:bg-coral-hover sm:min-h-[52px] sm:py-4"
                                 >
                                     {t('play.next_problem')}
                                 </button>

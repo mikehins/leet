@@ -8,7 +8,7 @@ import { useTranslations } from '@/hooks/useTranslations';
 import { useForm } from '@inertiajs/react';
 import { useRef, useState } from 'react';
 
-export default function DeleteUserForm({ className = '' }) {
+export default function DeleteUserForm({ className = '', hasPassword = true }) {
     const t = useTranslations();
     const [confirmingUserDeletion, setConfirmingUserDeletion] = useState(false);
     const passwordInput = useRef();
@@ -21,9 +21,7 @@ export default function DeleteUserForm({ className = '' }) {
         reset,
         errors,
         clearErrors,
-    } = useForm({
-        password: '',
-    });
+    } = useForm(hasPassword ? { password: '' } : {});
 
     const confirmUserDeletion = () => {
         setConfirmingUserDeletion(true);
@@ -35,7 +33,7 @@ export default function DeleteUserForm({ className = '' }) {
         destroy(route('profile.destroy'), {
             preserveScroll: true,
             onSuccess: () => closeModal(),
-            onError: () => passwordInput.current.focus(),
+            onError: () => hasPassword && passwordInput.current?.focus(),
             onFinish: () => reset(),
         });
     };
@@ -70,35 +68,37 @@ export default function DeleteUserForm({ className = '' }) {
                     </h2>
 
                     <p className="mt-1 text-sm text-gray-600">
-                        {t('profile.delete_confirm_message')}
+                        {hasPassword ? t('profile.delete_confirm_message') : t('profile.delete_confirm_message_oauth')}
                     </p>
 
-                    <div className="mt-6">
-                        <InputLabel
-                            htmlFor="password"
-                            value={t('auth.password')}
-                            className="sr-only"
-                        />
+                    {hasPassword && (
+                        <div className="mt-6">
+                            <InputLabel
+                                htmlFor="password"
+                                value={t('auth.password')}
+                                className="sr-only"
+                            />
 
-                        <TextInput
-                            id="password"
-                            type="password"
-                            name="password"
-                            ref={passwordInput}
-                            value={data.password}
-                            onChange={(e) =>
-                                setData('password', e.target.value)
-                            }
-                            className="mt-1 block w-3/4"
-                            isFocused
-                            placeholder={t('auth.password')}
-                        />
+                            <TextInput
+                                id="password"
+                                type="password"
+                                name="password"
+                                ref={passwordInput}
+                                value={data.password ?? ''}
+                                onChange={(e) =>
+                                    setData('password', e.target.value)
+                                }
+                                className="mt-1 block w-3/4"
+                                isFocused
+                                placeholder={t('auth.password')}
+                            />
 
-                        <InputError
-                            message={errors.password}
-                            className="mt-2"
-                        />
-                    </div>
+                            <InputError
+                                message={errors.password}
+                                className="mt-2"
+                            />
+                        </div>
+                    )}
 
                     <div className="mt-6 flex justify-end">
                         <SecondaryButton onClick={closeModal}>

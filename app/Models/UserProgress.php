@@ -15,6 +15,9 @@ class UserProgress extends Model
         'total_points',
         'current_streak',
         'longest_streak',
+        'login_streak',
+        'last_login_date',
+        'daily_quest_completed_at',
         'chat_questions_count',
         'last_activity_date',
     ];
@@ -23,6 +26,8 @@ class UserProgress extends Model
     {
         return [
             'last_activity_date' => 'date',
+            'last_login_date' => 'date',
+            'daily_quest_completed_at' => 'date',
         ];
     }
 

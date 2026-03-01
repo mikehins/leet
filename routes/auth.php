@@ -22,6 +22,21 @@ Route::middleware('guest')->group(function () {
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
+    Route::get('auth/google', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'redirect'])
+        ->name('auth.google');
+    Route::get('auth/google/callback', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'callback'])
+        ->name('auth.google.callback');
+
+    Route::get('auth/github', [\App\Http\Controllers\Auth\GitHubAuthController::class, 'redirect'])
+        ->name('auth.github');
+    Route::get('auth/github/callback', [\App\Http\Controllers\Auth\GitHubAuthController::class, 'callback'])
+        ->name('auth.github.callback');
+
+    Route::get('auth/facebook', [\App\Http\Controllers\Auth\FacebookAuthController::class, 'redirect'])
+        ->name('auth.facebook');
+    Route::get('auth/facebook/callback', [\App\Http\Controllers\Auth\FacebookAuthController::class, 'callback'])
+        ->name('auth.facebook.callback');
+
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');
 

@@ -6,10 +6,12 @@ use App\Enums\Difficulty;
 use App\Enums\Grade;
 use App\Enums\ProblemType;
 use App\Models\Problem;
+use App\Models\User;
 use Laravel\Ai\Exceptions\RateLimitedException;
 use App\Models\UserProgress;
 use App\Services\BadgeService;
 use App\Services\ProblemGenerator;
+use App\Services\ReportSuggestedProgressService;
 use App\Services\TutorService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -19,7 +21,8 @@ class PlayController extends Controller
     public function __construct(
         private ProblemGenerator $generator,
         private TutorService $tutor,
-        private BadgeService $badgeService
+        private BadgeService $badgeService,
+        private ReportSuggestedProgressService $reportProgressService
     ) {}
 
     public function index(Request $request)
@@ -41,11 +44,12 @@ class PlayController extends Controller
         $problem = $this->generator->generate($type, $difficulty);
 
         $grade = $request->get('grade', 'grade_4');
+        $currentCombo = $this->getCurrentCombo($user);
 
         return Inertia::render('Play/Index', [
             'game' => config('game'),
             'problem' => $this->formatProblemForFrontend($problem),
-            'progress' => $this->formatProgress($progress),
+            'progress' => $this->formatProgress($progress, $currentCombo),
             'grade' => $grade,
         ]);
     }
@@ -60,24 +64,51 @@ class PlayController extends Controller
         $problem = $this->generator->generateRandom($difficulty);
 
         $grade = $request->get('grade', 'grade_4');
+        $currentCombo = $this->getCurrentCombo($user);
 
         return Inertia::render('Play/Index', [
             'game' => config('game'),
             'problem' => $this->formatProblemForFrontend($problem),
-            'progress' => $this->formatProgress($progress),
+            'progress' => $this->formatProgress($progress, $currentCombo),
             'grade' => $grade,
         ]);
     }
 
-    private function formatProgress(UserProgress $progress): array
+    private function formatProgress(UserProgress $progress, ?int $currentCombo = null): array
     {
-        return [
-            'level' => $progress->level,
+        $xpPerLevel = config('game.xp_per_level', 500);
+        $level = max(1, 1 + (int) floor($progress->total_points / $xpPerLevel));
+        $xpIntoLevel = $progress->total_points % $xpPerLevel;
+        $xpForNextLevel = $xpPerLevel;
+        $progressPct = (int) round(100 * $xpIntoLevel / $xpPerLevel);
+
+        $data = [
+            'level' => $level,
             'total_points' => $progress->total_points,
             'xp' => $progress->total_points,
+            'xp_per_level' => $xpPerLevel,
+            'xp_in_level' => $xpIntoLevel,
+            'xp_for_next_level' => $xpForNextLevel,
+            'progress_pct' => $progressPct,
             'current_streak' => $progress->current_streak,
             'longest_streak' => $progress->longest_streak,
         ];
+
+        if ($currentCombo !== null) {
+            $data['current_combo'] = $currentCombo;
+        }
+
+        return $data;
+    }
+
+    private function getCurrentCombo(User $user): int
+    {
+        return $user->problemAttempts()
+            ->orderByDesc('created_at')
+            ->limit(10)
+            ->get()
+            ->takeWhile(fn ($a) => $a->correct)
+            ->count();
     }
 
     private function formatProblemForFrontend(Problem $problem): array
@@ -167,6 +198,23 @@ class PlayController extends Controller
         }
 
         $progress->last_activity_date = $today;
+
+        $dailyQuestBonus = 0;
+        if ($correct) {
+            $correctToday = $user->problemAttempts()
+                ->where('correct', true)
+                ->whereDate('created_at', $today)
+                ->count();
+            $questTarget = config('game.daily_quest_problems', 5);
+            $questBonusXp = config('game.daily_quest_bonus_xp', 50);
+            $lastCompleted = $progress->daily_quest_completed_at?->toDateString();
+            if ($correctToday >= $questTarget && $lastCompleted !== $today) {
+                $dailyQuestBonus = $questBonusXp;
+                $progress->total_points += $dailyQuestBonus;
+                $progress->daily_quest_completed_at = $today;
+            }
+        }
+
         $progress->save();
 
         $newBadges = $this->badgeService->checkAndAward($user, 'play_submit', [
@@ -175,16 +223,31 @@ class PlayController extends Controller
             'combo_count' => $comboCount,
         ]);
 
+        if ($correct) {
+            $reportBadges = $this->reportProgressService->recordCorrect($user, $problem);
+            $newBadges = $newBadges->merge($reportBadges);
+        }
+
+        $xpPerLevel = config('game.xp_per_level', 100);
+        $oldLevel = max(1, 1 + (int) floor(($progress->total_points - ($correct ? $xpPerCorrect : 0)) / $xpPerLevel));
+        $newLevel = max(1, 1 + (int) floor($progress->total_points / $xpPerLevel));
+        $levelUp = $correct && $newLevel > $oldLevel;
+
+        $totalPointsEarned = ($correct ? $xpPerCorrect : 0) + $dailyQuestBonus;
+
         return response()->json([
             'correct' => $correct,
             'correct_answer' => $problem->correct_answer,
             'points_earned' => $correct ? $xpPerCorrect : 0,
+            'daily_quest_bonus' => $dailyQuestBonus,
             'speed_bonus' => $speedBonus,
             'combo_bonus' => $comboBonus,
             'combo_count' => $comboCount,
             'new_total_points' => $progress->total_points,
             'new_streak' => $progress->current_streak,
             'new_badges' => $newBadges->map(fn ($b) => ['slug' => $b->slug, 'name_key' => $b->name_key, 'icon' => $b->icon])->toArray(),
+            'level_up' => $levelUp,
+            'new_level' => $newLevel,
         ]);
     }
 

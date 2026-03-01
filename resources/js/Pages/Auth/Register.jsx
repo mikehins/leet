@@ -1,5 +1,6 @@
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
+import OAuthButtons from '@/Components/OAuthButtons';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
@@ -117,6 +118,17 @@ export default function Register() {
                     </PrimaryButton>
                 </div>
             </form>
+
+            <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-stone-200" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                    <span className="bg-white px-2 text-stone-500">or</span>
+                </div>
+            </div>
+
+            <OAuthButtons />
         </GuestLayout>
     );
 }
