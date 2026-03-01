@@ -1,7 +1,9 @@
+import CompetitionInviteToast from '@/Components/CompetitionInviteToast';
 import Dropdown from '@/Components/Dropdown';
 import LocaleSwitcher from '@/Components/LocaleSwitcher';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
+import { CompetitionChannelProvider } from '@/Contexts/CompetitionChannelContext';
 import { useTranslations } from '@/hooks/useTranslations';
 import { Link, usePage } from '@inertiajs/react';
 import { BookOpen } from 'lucide-react';
@@ -15,6 +17,7 @@ export default function AuthenticatedLayout({ header, children }) {
         useState(false);
 
     return (
+        <CompetitionChannelProvider userId={user?.id}>
         <div className="min-h-screen bg-slate-50/80">
             <nav className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 shadow-[0_1px_0_0_rgba(0,0,0,0.03)] backdrop-blur-md">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -243,6 +246,9 @@ export default function AuthenticatedLayout({ header, children }) {
             )}
 
             <main>{children}</main>
+
+            <CompetitionInviteToast />
         </div>
+        </CompetitionChannelProvider>
     );
 }

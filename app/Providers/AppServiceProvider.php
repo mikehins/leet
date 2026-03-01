@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Listeners\LogAiCall;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
@@ -23,6 +24,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Broadcast::routes(['middleware' => ['web', 'auth']]);
+
         Vite::prefetch(concurrency: 3);
 
         Event::listen(AgentPrompted::class, LogAiCall::class);

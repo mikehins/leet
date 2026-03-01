@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\Difficulty;
 use App\Enums\Grade;
+use App\Events\CompetitionInvite;
 use App\Events\GameEnded;
 use App\Events\GameStarted;
 use App\Events\PlayerAnswered;
@@ -44,6 +45,8 @@ class CompetitiveGameController extends Controller
             'grade' => $grade,
         ]);
 
+        broadcast(new CompetitionInvite($user->name, $user->id, $game->code));
+
         return redirect()->route('compete.show', $game->code);
     }
 
@@ -80,7 +83,7 @@ class CompetitiveGameController extends Controller
     public function join(Request $request)
     {
         $request->validate([
-            'code' => 'required|string|size:6',
+            'code' => 'required|string|size:4',
             'grade' => 'nullable|in:grade_3,grade_4,grade_5,grade_6',
         ]);
 
@@ -116,7 +119,7 @@ class CompetitiveGameController extends Controller
     public function submit(Request $request)
     {
         $request->validate([
-            'game_code' => 'required|string|size:6',
+            'game_code' => 'required|string|size:4',
             'problem_id' => 'required|exists:problems,id',
             'answer' => 'required|string',
             'time_spent_seconds' => 'nullable|integer|min:0',
@@ -280,7 +283,7 @@ class CompetitiveGameController extends Controller
         ]);
 
         $players = $game->players()->with('user:id,name')->get()
-            ->map(fn ($p) => ['id' => $p->user_id, 'name' => $p->user->name, 'score' => $p->score])
+            ->map(fn ($p) => ['user_id' => $p->user_id, 'name' => $p->user->name, 'score' => $p->score])
             ->toArray();
 
         $problemsByUser = $rounds->mapWithKeys(fn ($r) => [$r->user_id => $this->formatProblem($r->problem)]);

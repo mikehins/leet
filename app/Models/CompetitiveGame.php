@@ -53,7 +53,7 @@ class CompetitiveGame extends Model
     public static function generateCode(): string
     {
         do {
-            $code = strtoupper(Str::random(6));
+            $code = (string) random_int(1000, 9999);
         } while (self::where('code', $code)->exists());
 
         return $code;

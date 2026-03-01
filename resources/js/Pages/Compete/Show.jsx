@@ -1,4 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import ThinkingCanvas from '@/Components/ThinkingCanvas';
 import { useTranslations } from '@/hooks/useTranslations';
 import { Head, router } from '@inertiajs/react';
 import { Trophy, Minus } from 'lucide-react';
@@ -23,12 +24,12 @@ export default function CompeteShow({ game, problem: initialProblem, results: in
     }, [problem?.id]);
 
     useEffect(() => {
-        if (!problem) return;
+        if (!problem || answered) return;
         const interval = setInterval(() => {
             setTimeSpent(Math.floor((Date.now() - startTime.current) / 1000));
         }, 1000);
         return () => clearInterval(interval);
-    }, [problem?.id]);
+    }, [problem?.id, answered]);
 
     useEffect(() => {
         if (!game?.code || !window.Echo) return;
@@ -132,8 +133,8 @@ export default function CompeteShow({ game, problem: initialProblem, results: in
 
     const winnerId = isFinished && gameState.players?.length === 2
         ? (gameState.players[0].score >= gameState.players[1].score
-            ? gameState.players[0].user_id
-            : gameState.players[1].user_id)
+            ? (gameState.players[0].user_id ?? gameState.players[0].id)
+            : (gameState.players[1].user_id ?? gameState.players[1].id))
         : null;
     const isTie = isFinished && gameState.players?.length === 2
         && gameState.players[0].score === gameState.players[1].score;
@@ -164,26 +165,28 @@ export default function CompeteShow({ game, problem: initialProblem, results: in
                         </div>
                     )}
 
-                    {/* Scoreboard */}
-                    <div className="mb-6 flex justify-center gap-4">
+                    {/* Scoreboard - sticky on mobile so it stays visible while solving */}
+                    <div className="sticky top-14 z-40 -mx-4 mb-6 flex justify-center gap-2 bg-slate-50/95 px-4 py-2 backdrop-blur-sm sm:gap-4 sm:bg-transparent sm:px-0 sm:py-0 sm:backdrop-blur-none">
                         {gameState.players?.map((p) => (
                             <div
-                                key={p.user_id}
-                                className={`rounded-xl border px-6 py-3 ${
-                                    p.user_id === me.id
+                                key={p.user_id ?? p.id ?? p.name}
+                                className={`flex min-w-0 flex-1 items-center justify-between gap-2 rounded-xl border px-3 py-2 sm:flex-col sm:items-center sm:justify-center sm:gap-0 sm:px-6 sm:py-3 ${
+                                    (p.user_id ?? p.id) === me.id
                                         ? 'border-slate-300 bg-white shadow-sm'
                                         : 'border-slate-200 bg-slate-50'
                                 }`}
                             >
-                                <p className="text-sm font-bold text-slate-600">
-                                    {p.user_id === me.id ? 'You' : p.name}
+                                <p className="truncate text-xs font-bold text-slate-600 sm:text-sm">
+                                    {(p.user_id ?? p.id) === me.id ? t('compete.you') : p.name}
                                     {p.grade && (
-                                        <span className="ml-1.5 font-normal text-slate-500">
+                                        <span className="ml-1 hidden font-normal text-slate-500 sm:inline">
                                             ({t(`grade.${p.grade}`)})
                                         </span>
                                     )}
                                 </p>
-                                <p className="text-2xl font-extrabold text-slate-800">{p.score}</p>
+                                <p className="shrink-0 text-xl font-extrabold tabular-nums text-slate-800 sm:text-2xl">
+                                    {p.score}
+                                </p>
                             </div>
                         ))}
                     </div>
@@ -217,37 +220,30 @@ export default function CompeteShow({ game, problem: initialProblem, results: in
                                 </p>
                             </div>
                             <div className="p-10">
-                                {problem.stacked ? (
-                                    <div className="mb-10 flex justify-center">
-                                        <div className="rounded-xl border border-slate-200 bg-slate-50 px-12 py-10">
-                                            <div className="font-mono text-5xl font-bold tabular-nums text-slate-800">
-                                                <div className="flex justify-end">
-                                                    <span className="min-w-[4ch] text-right">{problem.stacked.top}</span>
-                                                </div>
-                                                <div className="flex justify-end">
-                                                        <span className="min-w-[4ch] text-right text-slate-600">
-                                                        {problem.stacked.operator}
-                                                    </span>
-                                                </div>
-                                                <div className="flex justify-end">
-                                                    <span className="min-w-[4ch] text-right">{problem.stacked.bottom}</span>
-                                                </div>
-                                                <div className="mt-3 flex justify-end border-b-4 border-slate-400">
-                                                    <span className="min-w-[4ch] text-right text-transparent">0</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <p className="mb-10 text-center text-2xl font-bold text-slate-800">
-                                        {problem.question_text}
+                                <div className="mb-6">
+                                    <p className="mb-2 text-sm font-semibold text-slate-600">
+                                        {t('play.work_here')}
                                     </p>
-                                )}
+                                    <ThinkingCanvas
+                                        className="rounded-xl border border-slate-200 bg-slate-50/50 p-3"
+                                        problemKey={problem.id}
+                                        equation={
+                                            problem.stacked
+                                                ? { stacked: problem.stacked }
+                                                : { question: problem.question_text }
+                                        }
+                                    />
+                                </div>
 
                                 <form onSubmit={handleSubmit} className="space-y-5">
-                                    <div className="relative">
+                                    <div>
+                                        <label htmlFor="answer" className="mb-2 block text-sm font-semibold text-slate-600">
+                                            {t('play.your_answer')}
+                                        </label>
+                                        <div className="relative">
                                         <input
                                             ref={inputRef}
+                                            id="answer"
                                             type="text"
                                             inputMode="numeric"
                                             value={answer}
@@ -259,6 +255,7 @@ export default function CompeteShow({ game, problem: initialProblem, results: in
                                         <span className="absolute right-4 top-1/2 -translate-y-1/2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1 font-mono text-sm font-medium tabular-nums text-slate-600">
                                             ⏱ {timeSpent}s
                                         </span>
+                                        </div>
                                     </div>
                                     <button
                                         type="submit"
@@ -316,8 +313,8 @@ export default function CompeteShow({ game, problem: initialProblem, results: in
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {results.map((row) => (
-                                                <tr key={row.round} className="border-t border-slate-100">
+                                            {results.map((row, rowIndex) => (
+                                                <tr key={row.round ?? rowIndex} className="border-t border-slate-100">
                                                     <td className="px-4 py-3 font-medium text-slate-700">{row.round}</td>
                                                     {row.players.map((pl) => (
                                                         <React.Fragment key={pl.user_id}>

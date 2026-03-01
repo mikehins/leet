@@ -1,3 +1,4 @@
+import { useCompetitionChannel } from '@/Contexts/CompetitionChannelContext';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { useTranslations } from '@/hooks/useTranslations';
 import { Head, router } from '@inertiajs/react';
@@ -5,6 +6,7 @@ import { useState } from 'react';
 
 export default function CompeteIndex({ game }) {
     const t = useTranslations();
+    const { onlineCount } = useCompetitionChannel();
     const [grade, setGrade] = useState('grade_4');
 
     const createGame = () => {
@@ -26,6 +28,12 @@ export default function CompeteIndex({ game }) {
                     <p className="mb-8 text-center text-slate-600">
                         {t('compete.subtitle')}
                     </p>
+
+                    {onlineCount > 0 && (
+                        <p className="mb-6 text-center text-sm font-medium text-slate-500">
+                            {t('compete.online_count', { count: onlineCount })}
+                        </p>
+                    )}
 
                     <div className="mb-6">
                         <label htmlFor="grade" className="mb-2 block text-sm font-medium text-slate-700">
